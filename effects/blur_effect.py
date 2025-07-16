@@ -1,19 +1,24 @@
 import cv2
 import numpy as np
 
-def apply_blur(gray_image):
-    h, w = gray_image.shape
-    result = np.zeros_like(gray_image)
+def apply_blur(gray_image, kernel_size=3):
+	if kernel_size % 2 == 0:
+		print(kernel_size)
+		raise ValueError("must be odd")
+	
+	h, w = gray_image.shape
+	result = np.zeros_like(gray_image)
+	radius = kernel_size // 2
 
-    # check all pixels (we avoid corners to avoid out of bounds errors)
-    for y in range(1, h - 1):
-        for x in range(1, w - 1):
-            # get a 3x3 kernel and apply average of gray_scale value of each pixel around to the current pixel
-            region = gray_image[y - 1:y + 2, x - 1:x + 2]
-            result[y, x] = int(region.sum() / 9)
-    return result
+	for y in range(radius, h - radius):
+		for x in range(radius, w - radius):
+			region = gray_image[y - radius:y + radius + 1, x - radius:x + radius + 1]
+			result[y, x] = int(region.sum() / (kernel_size * kernel_size))
 
-def blur_image(image):
+	return result
+		
+
+def blur_image(image,kernel_size):
 	gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-	blank_image = apply_blur(gray_image)
+	blank_image = apply_blur(gray_image,kernel_size)
 	return blank_image
