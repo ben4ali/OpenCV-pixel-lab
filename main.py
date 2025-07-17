@@ -8,6 +8,7 @@ from effects.gaussian_blur import gaussian_kernel
 from effects.gaussian_blur import apply_gaussian_blur
 from effects.sobel_filter import apply_sobel_filter
 from effects.canny_filter import apply_canny
+from effects.tresholding import threshold_adaptive, threshold_global, threshold_otsu
 
 
 if __name__ == "__main__":
@@ -17,14 +18,24 @@ if __name__ == "__main__":
     if image is not None:
         
         img_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        edges = apply_canny(img_gray)
+        # global
+        bin_global = threshold_global(img_gray, thresh=127)
 
-        cv2.imshow("Processed image", edges)
-        cv2.imshow("Original image", image)
+        # 2. otsu
+        bin_otsu = threshold_otsu(img_gray)
+
+        # 3. adaptive
+        bin_adapt = threshold_adaptive(img_gray, block_size=11, C=2, method='gaussian')
+
+        cv2.imshow("Original", image)
+        cv2.imshow("Grayscale", img_gray)
+        cv2.imshow("Global (127)", bin_global)
+        cv2.imshow("Otsu", bin_otsu)
+        cv2.imshow("Adaptive Gaussian", bin_adapt)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-        is_already_saved = cv2.imread("outputs/canny.png")
+        is_already_saved = cv2.imread("outputs/adaptive_tresholding.png")
         if is_already_saved is None:
-          cv2.imwrite("outputs/canny.png",edges)
+          cv2.imwrite("outputs/canny.png",bin_adapt)
 
